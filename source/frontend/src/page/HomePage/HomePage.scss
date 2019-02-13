@@ -1,0 +1,67 @@
+/* stylelint-disable-next-line block-no-empty */
+.home-page {
+}
+
+.carousel {
+  width: 75%;
+  max-width: 80rem;
+  margin: 2rem auto;
+
+  &:after {
+    @include pseudo();
+    @include position(0);
+    outline: 10px solid red;
+    pointer-events: none;
+  }
+}
+
+.carousel-item {
+  @include size(100%, 400px);
+
+  &:nth-child(5n) {
+    background: red;
+  }
+  &:nth-child(5n + 1) {
+    background: blue;
+  }
+  &:nth-child(5n + 2) {
+    background: green;
+  }
+  &:nth-child(5n + 3) {
+    background: yellow;
+  }
+  &:nth-child(5n + 4) {
+    background: pink;
+  }
+
+  img {
+    @include size(100%);
+    object-fit: cover;
+  }
+
+  span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 4em;
+  }
+}
+
+.navigation {
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+.pagination {
+  li {
+    display: inline-block;
+    vertical-align: top;
+  }
+}
+
+@include respond-to(MEDIUM) {
+  .carousel-item {
+    //width: 15%;
+    //width: 33.333333%;
+  }
+}
