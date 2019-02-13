@@ -160,7 +160,16 @@ export default class CarouselController extends EventDispatcher {
     this.setItemPositions();
 
     if (this.dragger) {
+      this.dragger.applyBounds(this.getBounds());
       this.createAnimation();
+
+      if (this.hasOverflow) {
+        this.dragger.enable();
+      } else {
+        this.dragger.disable();
+        this.snapIndex = 0;
+      }
+
       this.goto(this.snapIndex, 0.1, 0);
     }
   }
@@ -174,7 +183,12 @@ export default class CarouselController extends EventDispatcher {
    * @param moveRow
    */
   public previous(moveRow: boolean = false): void {
-    this.snapIndex -= moveRow ? Math.floor(this.viewWidth / this.itemWidth) : 1;
+    const offset = moveRow ? Math.floor(this.viewWidth / this.itemWidth) : 1;
+    if (this.options.isInfinite) {
+      this.snapIndex -= offset;
+    } else {
+      this.snapIndex = Math.max(this.snapIndex - offset, 0);
+    }
     this.goto(this.snapIndex);
   }
 
@@ -187,7 +201,13 @@ export default class CarouselController extends EventDispatcher {
    * @param moveRow
    */
   public next(moveRow: boolean = false): void {
-    this.snapIndex += moveRow ? Math.floor(this.viewWidth / this.itemWidth) : 1;
+    const itemsInView = Math.floor(this.viewWidth / this.itemWidth);
+    const offset = moveRow ? itemsInView : 1;
+    if (this.options.isInfinite) {
+      this.snapIndex += offset;
+    } else {
+      this.snapIndex = Math.min(this.snapIndex + offset, this.carouselItems.length - itemsInView);
+    }
     this.goto(this.snapIndex);
   }
 
@@ -231,15 +251,17 @@ export default class CarouselController extends EventDispatcher {
     TweenMax.killTweensOf(this.carouselItems);
     this.animation = null;
 
-    this.animation = TweenMax.to(this.carouselItems, 1, {
-      x: `+=${this.itemWidth * this.carouselItems.length}`,
-      ease: Linear.easeNone,
-      paused: true,
-      repeat: -1,
-      modifiers: {
-        x: this.getAnimationModifier.bind(this),
-      },
-    });
+    if (this.hasOverflow) {
+      this.animation = TweenMax.to(this.carouselItems, 1, {
+        x: `+=${this.itemWidth * this.carouselItems.length}`,
+        ease: Linear.easeNone,
+        paused: true,
+        repeat: -1,
+        modifiers: {
+          x: this.getAnimationModifier.bind(this),
+        },
+      });
+    }
   }
 
   private createDraggable(): void {
@@ -256,12 +278,16 @@ export default class CarouselController extends EventDispatcher {
       bounds: this.getBounds(),
       snap: this.getSnap.bind(this),
     });
+
+    if (!this.hasOverflow) {
+      this.dragger.disable();
+    }
   }
 
   private getAnimationModifier(x: number, target: HTMLElement): number {
     const newX = x % (this.itemWidth * this.carouselItems.length);
     if (this.options.hideOverflowItems) {
-      target.style.visibility = newX - this.itemWidth > this.viewWidth ? 'hidden' : 'visible';
+      // target.style.visibility = newX - this.itemWidth > this.viewWidth ? 'hidden' : 'visible';
     }
 
     if (newX > 0 && newX < this.viewWidth + this.itemWidth) {
@@ -393,6 +419,10 @@ export default class CarouselController extends EventDispatcher {
     if (this.animation) {
       this.animation.progress(progress);
     }
+  }
+
+  private get hasOverflow(): boolean {
+    return this.viewWidth < this.itemWidth * this.carouselItems.length;
   }
 
   public dispose() {

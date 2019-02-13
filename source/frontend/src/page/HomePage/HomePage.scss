@@ -3,7 +3,7 @@
 }
 
 .carousel {
-  width: 75%;
+  width: 100%;
   max-width: 80rem;
   margin: 2rem auto;
 
@@ -16,7 +16,7 @@
 }
 
 .carousel-item {
-  @include size(100%, 400px);
+  @include size(50%, 400px);
 
   &:nth-child(5n) {
     background: red;
@@ -61,7 +61,7 @@
 
 @include respond-to(MEDIUM) {
   .carousel-item {
-    //width: 15%;
+    width: 15%;
     //width: 33.333333%;
   }
 }

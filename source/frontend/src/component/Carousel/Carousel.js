@@ -10,7 +10,9 @@ export default {
     itemClass: VueTypes.string.def(''),
   },
   mounted() {
-    this.carousel = new CarouselController(this.$el, this.$refs.items, this.$refs.item);
+    this.carousel = new CarouselController(this.$el, this.$refs.items, this.$refs.item, {
+      isInfinite: false,
+    });
 
     this.carousel.addEventListener(CarouselEvent.CHANGE, this.onCarouselChange);
   },
